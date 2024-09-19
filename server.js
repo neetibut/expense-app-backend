@@ -1,6 +1,7 @@
 const express = require("express");
 const connectDB = require("./config/db");
 const dotenv = require("dotenv");
+const cors = require("cors");
 
 // Load environment variables
 dotenv.config();
@@ -9,6 +10,14 @@ const app = express();
 
 // Connect to MongoDB
 connectDB();
+
+// Enable CORS
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow requests from this origin
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  })
+);
 
 // Middleware
 app.use(express.json());
@@ -26,13 +35,15 @@ app.get("/test", async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
-
-const port = process.env.PORT || 5500;
-
-// Routes
+// Define Routes
 app.get("/", (req, res) => {
   res.send("Hello, world!");
 });
+
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/expenses", require("./routes/expenses"));
+
+const port = process.env.PORT || 5500;
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
